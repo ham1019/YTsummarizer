@@ -20,17 +20,53 @@ interface SlackEvent {
   };
 }
 
-// YouTube URL extraction
+// YouTube URL extraction - supports all common YouTube URL formats
 function extractVideoId(url: string): string | null {
+  // Remove any whitespace and ensure URL is clean
+  url = url.trim();
+  
+  console.log('Processing URL:', url);
+  
   const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&\n?#]+)/,
-    /youtube\.com\/watch\?.*v=([^&\n?#]+)/
+    // Standard watch URLs
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?.*[&?]v=([a-zA-Z0-9_-]{11})/,
+    
+    // Short URLs
+    /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})/,
+    
+    // Embed URLs
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+    
+    // Old style URLs
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/v\/([a-zA-Z0-9_-]{11})/,
+    
+    // Mobile URLs
+    /(?:https?:\/\/)?m\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
+    /(?:https?:\/\/)?m\.youtube\.com\/watch\?.*[&?]v=([a-zA-Z0-9_-]{11})/,
+    
+    // YouTube Music URLs
+    /(?:https?:\/\/)?music\.youtube\.com\/watch\?v=([a-zA-Z0-Z_-]{11})/,
+    
+    // Gaming URLs  
+    /(?:https?:\/\/)?gaming\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
+    
+    // Shorts URLs
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+    
+    // If just video ID is provided
+    /^([a-zA-Z0-9_-]{11})$/
   ];
   
   for (const pattern of patterns) {
     const match = url.match(pattern);
-    if (match) return match[1];
+    if (match && match[1]) {
+      console.log('Extracted video ID:', match[1]);
+      return match[1];
+    }
   }
+  
+  console.log('No video ID found in URL:', url);
   return null;
 }
 
