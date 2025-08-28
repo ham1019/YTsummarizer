@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { WebClient } from '@slack/web-api';
-import { YoutubeTranscript } from 'youtube-transcript';
+import { fetchTranscript } from 'youtube-transcript-plus';
 import OpenAI from 'openai';
 
 const slack = new WebClient(process.env.SLACK_BOT_TOKEN);
@@ -74,7 +74,7 @@ function extractVideoId(url: string): string | null {
 async function getTranscript(urlOrVideoId: string): Promise<string | null> {
   try {
     console.log('Attempting to fetch transcript for:', urlOrVideoId);
-    const transcript = await YoutubeTranscript.fetchTranscript(urlOrVideoId);
+    const transcript = await fetchTranscript(urlOrVideoId);
     
     if (!transcript || transcript.length === 0) {
       console.log('Transcript is empty');
@@ -82,7 +82,8 @@ async function getTranscript(urlOrVideoId: string): Promise<string | null> {
     }
     
     console.log('Successfully fetched transcript, items count:', transcript.length);
-    return transcript.map(item => item.text).join(' ');
+    // youtube-transcript-plus uses 'caption' instead of 'text'
+    return transcript.map(item => item.caption || item.text || '').join(' ');
   } catch (error) {
     console.error('Error fetching transcript:', error);
     return null;
