@@ -88,8 +88,8 @@ async function getTranscript(urlOrVideoId: string): Promise<string | null> {
     }
     
     console.log('Successfully fetched transcript, items count:', transcript.length);
-    // youtube-transcript-plus uses 'caption' instead of 'text'
-    return transcript.map(item => item.caption || item.text || '').join(' ');
+    // youtube-transcript-plus uses 'text' property
+    return transcript.map(item => (item as any).text || '').join(' ');
   } catch (error) {
     console.error('Error fetching transcript:', error);
     return null;

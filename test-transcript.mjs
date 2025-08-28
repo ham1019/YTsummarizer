@@ -38,6 +38,7 @@ async function testTranscript() {
       const transcript1 = await fetchTranscript(video.url);
       console.log(`✅ SUCCESS with URL! Found ${transcript1.length} transcript items`);
       if (transcript1.length > 0) {
+        console.log('First item structure:', JSON.stringify(transcript1[0], null, 2));
         console.log('First few items:', transcript1.slice(0, 3).map(item => item.caption || item.text).join(' '));
       }
     } catch (error) {
