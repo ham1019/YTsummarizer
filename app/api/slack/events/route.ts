@@ -71,9 +71,17 @@ function extractVideoId(url: string): string | null {
 }
 
 // Get YouTube transcript
-async function getTranscript(videoId: string): Promise<string | null> {
+async function getTranscript(urlOrVideoId: string): Promise<string | null> {
   try {
-    const transcript = await YoutubeTranscript.fetchTranscript(videoId);
+    console.log('Attempting to fetch transcript for:', urlOrVideoId);
+    const transcript = await YoutubeTranscript.fetchTranscript(urlOrVideoId);
+    
+    if (!transcript || transcript.length === 0) {
+      console.log('Transcript is empty');
+      return null;
+    }
+    
+    console.log('Successfully fetched transcript, items count:', transcript.length);
     return transcript.map(item => item.text).join(' ');
   } catch (error) {
     console.error('Error fetching transcript:', error);
@@ -130,12 +138,20 @@ Please provide the summary in English, using clean markdown format.
 
 // Process YouTube URL
 async function processYouTubeUrl(url: string): Promise<string> {
-  const videoId = extractVideoId(url);
-  if (!videoId) {
-    return 'Invalid YouTube URL format';
+  // First try with original URL
+  console.log('Processing original URL:', url);
+  let transcript = await getTranscript(url);
+  
+  if (!transcript) {
+    // If that fails, try with video ID
+    const videoId = extractVideoId(url);
+    if (!videoId) {
+      return 'Invalid YouTube URL format';
+    }
+    console.log('Trying with extracted video ID:', videoId);
+    transcript = await getTranscript(videoId);
   }
 
-  const transcript = await getTranscript(videoId);
   if (!transcript) {
     return 'Could not retrieve transcript for this video. The video might not have captions available.';
   }
