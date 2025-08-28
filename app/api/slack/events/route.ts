@@ -207,9 +207,15 @@ export async function POST(request: NextRequest) {
         const user = event.user;
         const channel = event.channel;
         
-        // Extract YouTube URL
-        const urlPattern = /https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)[^\s]+/g;
-        const urls = text.match(urlPattern);
+        // Extract YouTube URL and clean it
+        const urlPattern = /https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)[^\s<>|]+/g;
+        const rawUrls = text.match(urlPattern);
+        
+        // Clean URLs by removing Slack metadata
+        const urls = rawUrls?.map(url => {
+          // Remove everything after | or < or >
+          return url.replace(/[|<>].*/g, '').trim();
+        });
         
         if (!urls) {
           await slack.chat.postMessage({
