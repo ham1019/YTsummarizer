@@ -74,7 +74,13 @@ function extractVideoId(url: string): string | null {
 async function getTranscript(urlOrVideoId: string): Promise<string | null> {
   try {
     console.log('Attempting to fetch transcript for:', urlOrVideoId);
-    const transcript = await fetchTranscript(urlOrVideoId);
+    
+    // Try with custom User-Agent to avoid blocking
+    const options = {
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    };
+    
+    const transcript = await fetchTranscript(urlOrVideoId, options);
     
     if (!transcript || transcript.length === 0) {
       console.log('Transcript is empty');
