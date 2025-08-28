@@ -3,6 +3,13 @@ import { WebClient } from '@slack/web-api';
 import { fetchTranscript } from 'youtube-transcript-plus';
 import OpenAI from 'openai';
 
+interface TranscriptItem {
+  text: string;
+  duration?: number;
+  offset?: number;
+  lang?: string;
+}
+
 const slack = new WebClient(process.env.SLACK_BOT_TOKEN);
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -89,7 +96,7 @@ async function getTranscript(urlOrVideoId: string): Promise<string | null> {
     
     console.log('Successfully fetched transcript, items count:', transcript.length);
     // youtube-transcript-plus uses 'text' property
-    return transcript.map(item => (item as any).text || '').join(' ');
+    return (transcript as TranscriptItem[]).map(item => item.text || '').join(' ');
   } catch (error) {
     console.error('Error fetching transcript:', error);
     return null;
